@@ -1,1 +1,119 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap");
+
+/* background---#f2f2f2 */
+
+/* Converted color---#94c720 */
+
+/* Button color --- #009688 */
+
+/* base styles */
+* {
+  margin: 0;
+  font-family: "Roboto";
+  color: #404040;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+}
+header {
+  position: fixed !important;
+  z-index: 1000;
+  top: 0px;
+  background-color: #fff;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  box-shadow: rgb(0 0 0 / 20%) 0px 2px 1px -1px,
+    rgb(0 0 0 / 14%) 0px 1px 1px 0px, rgb(0 0 0 / 12%) 0px 1px 3px 0px;
+}
+.navbar {
+  display: flex;
+  align-items: center;
+  max-width: 900px;
+  margin: 0 auto;
+  flex-grow: 1;
+}
+.brand-name {
+  color: #8d8d8d;
+  /* font-weight: bold; */
+  font-size: 20px;
+  padding: 20px 10px;
+}
+.navigation {
+  display: flex;
+  margin-left: 20px;
+}
+.navigation-item {
+  padding: 20px 10px;
+  color: #8d8d8d;
+}
+.logout-link {
+  padding: 20px 10px;
+  color: #009688;
+  flex-grow: 1;
+  display: flex;
+  justify-content: flex-end;
+  cursor: pointer;
+}
+
+.navbar a {
+  text-decoration: none;
+}
+.active-link {
+  border-bottom: 2px solid #009688;
+}
+.active-link .navigation-item {
+  color: #404040;
+}
+.main-container {
+  margin-top: 66px;
+  background: #f2f2f2;
+  display: flex;
+  justify-content: center;
+  min-height: calc(100vh - 70px);
+}
+.page-content {
+  width: 900px;
+  padding: 24px;
+}
+/* Pages */
+.section-title,
+.page-title {
+  font-weight: bold;
+  font-size: 48px;
+  line-height: 130%;
+  color: #404040;
+}
+.section-title {
+  font-size: 24px;
+}
+.form-container {
+  display: flex;
+  margin-top: 24px;
+}
+.result-container,
+.result-wrapper {
+  margin-top: 48px;
+  display: flex;
+  justify-content: center;
+}
+.from-currency {
+  font-size: 32px;
+  line-height: 130%;
+  color: #404040;
+}
+.to-currency {
+  font-size: 32px;
+  line-height: 130%;
+  color: #94c720;
+  font-weight: bold;
+  margin-left: 4px;
+}
+.result-container {
+  flex-direction: column;
+  align-items: center;
+  color: #8d8d8d;
+}
+.conversion-rate {
+  color: #8d8d8d;
+}
