@@ -91,6 +91,9 @@ header {
   display: flex;
   margin-top: 24px;
 }
+.conversion-result {
+  height: 130px;
+}
 .result-container,
 .result-wrapper {
   margin-top: 48px;

@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import HistoryTable from "src/components/HistoryTable";
+import HistoryTable from "./ConversionHistoryTable";
 
 const ConversionHistory = () => {
   return (

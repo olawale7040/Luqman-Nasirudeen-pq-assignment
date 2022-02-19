@@ -20,7 +20,9 @@ Axios.interceptors.response.use(
     )
 );
 
-export const getCurrencyList = () =>
+export const getCurrencyList = () => Axios.get(`exchange-rates?key=${apiKey}`);
+
+export const getExchangeHistory = (currency, start) =>
   Axios.get(
-    `currencies/ticker?key=${apiKey}&interval=1h&per-page=10&status=active&quote-currency=USD&symbols=NGN,USD&filter=any&include-fiat=true`
+    `exchange-rates/history?key=${apiKey}&currency=${currency}&start=${start}`
   );

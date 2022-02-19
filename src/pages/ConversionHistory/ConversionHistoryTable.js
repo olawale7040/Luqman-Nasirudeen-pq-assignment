@@ -6,45 +6,41 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
 
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
-const HistoryTable = () => {
+// Utils
+// import { formatNumber, shortDateFormat } from "src/utils";
+
+const ConversionHistoryTable = ({}) => {
   return (
     <div>
       <TableContainer component={Paper}>
         <Table size="small" aria-label="a dense table">
           <TableHead>
             <TableRow>
-              <TableCell>Dessert (100g serving)</TableCell>
-              <TableCell align="right">Calories</TableCell>
+              <TableCell>Date</TableCell>
+              <TableCell>Event</TableCell>
+              <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
-            {rows.map((row) => (
+          {/* <TableBody> */}
+          {/* {exchangeHistory.map((row) => (
               <TableRow
-                key={row.name}
+                key={row.timestamp}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell component="th" scope="row">
-                  {row.name}
+                  {shortDateFormat(row.timestamp)}
                 </TableCell>
-                <TableCell align="right">{row.calories}</TableCell>
+                <TableCell align="right">
+                  {formatNumber(+row.rate, 7)}
+                </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
+            ))} */}
+          {/* </TableBody> */}
         </Table>
       </TableContainer>
     </div>
   );
 };
 
-export default HistoryTable;
+export default ConversionHistoryTable;
