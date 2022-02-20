@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
+
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { useLocation } from "react-router-dom";
+
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -26,9 +29,33 @@ const CurrencyConverter = () => {
   const [values, setValues] = useState({
     amount: "",
     fromCurrency: "",
-    toCurrency: "",
+    toCurrency: { currency: "", rate: "" },
   });
 
+  // Hooks
+  const queryParams = new URLSearchParams(useLocation().search);
+  // View a conversion history to and perform operation
+  // Get query parameter (id)
+  // const performViewConversionHistory=() => {
+  //   const historyId = queryParams.get("id")
+  //   const allHistory = JSON.parse(localStorage.getItem("conversionHistory"));
+  //   if(historyId && allHistory){
+  //     const findHistory = allHistory.find((item) => item.id === id);
+  //   }
+  // }
+  const handleSwitchCurrencyBtn = () => {
+    const { fromCurrency, toCurrency } = values;
+    if (fromCurrency && toCurrency) {
+      setValues({
+        ...values,
+        fromCurrency: toCurrency,
+        toCurrency: fromCurrency,
+      });
+      setSelectedBaseCurrency(selectedQuoteCurrency);
+      setSelectedQuoteCurrency(selectedBaseCurrency);
+      handleConversion();
+    }
+  };
   const handleChange = (value, type) => {
     if (type === "fromCurrency") {
       setSelectedBaseCurrency(value);
@@ -66,17 +93,15 @@ const CurrencyConverter = () => {
       ...values,
       date,
     };
+    payload.id = Math.floor(1000 + Math.random() * 9000);
     let data = [];
     if (localStorage.hasOwnProperty("conversionHistory")) {
       const conversionHistory = JSON.parse(
         localStorage.getItem("conversionHistory")
       );
-      payload.id = conversionHistory.length + 1;
       conversionHistory.push(payload);
       data = conversionHistory;
     } else {
-      // First Item
-      payload.id = 1;
       data.push(payload);
     }
     localStorage.setItem("conversionHistory", JSON.stringify(data));
@@ -111,6 +136,7 @@ const CurrencyConverter = () => {
         // console.log(error.message, "error...");
       });
   };
+
   useEffect(() => {
     fetchCurrencyList();
   }, []);
@@ -153,6 +179,7 @@ const CurrencyConverter = () => {
                     onInputChange={(event, newInputValue) => {
                       handleChange(newInputValue, "fromCurrency");
                     }}
+                    value={values.fromCurrency}
                     onChange={(event, newValue) => {
                       handleChange(newValue, "fromCurrency");
                     }}
@@ -166,10 +193,27 @@ const CurrencyConverter = () => {
                         )}
                         variant="standard"
                         name="fromCurrency"
-                        value={values.fromCurrency}
+                        // defaultValue="ETH"
+                        // value={values.fromCurrency}
                       />
                     )}
                   />
+
+                  <Button
+                    type="button"
+                    variant="contained"
+                    sx={{
+                      backgroundColor: "#fff",
+                      height: "30px",
+                      padding: "22px",
+                    }}
+                    onClick={handleSwitchCurrencyBtn}
+                  >
+                    <span className="material-icons compare_arrows">
+                      compare_arrows
+                    </span>
+                  </Button>
+
                   <Autocomplete
                     sx={{ width: "30%" }}
                     getOptionLabel={(option) => option.currency}
@@ -189,7 +233,7 @@ const CurrencyConverter = () => {
                         error={Boolean(touched.toCurrency && errors.toCurrency)}
                         variant="standard"
                         name="toCurrency"
-                        value={values.toCurrency}
+                        // value={values.toCurrency}
                       />
                     )}
                   />

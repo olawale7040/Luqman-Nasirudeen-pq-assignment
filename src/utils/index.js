@@ -21,6 +21,14 @@ export const shortDateFormat = (date) => {
   const year = convertDate.getFullYear();
   return `${day}/${month}/${year}`;
 };
+
+export const customizeDate = (date) => {
+  const newDate = new Date(date);
+  const shortDate = shortDateFormat(date);
+  const hours = newDate.getHours();
+  const minutes = newDate.getMinutes();
+  return `${shortDate} @ ${hours}:${minutes}`;
+};
 export const historyDuration = [
   {
     id: 1,

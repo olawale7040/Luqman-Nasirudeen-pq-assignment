@@ -16,8 +16,7 @@ const StatisticsTable = ({ exchangeRateStatistics }) => {
         <Table size="small" aria-label="a dense table">
           <TableHead>
             <TableRow>
-              <TableCell>Statistics</TableCell>
-              <TableCell align="right">{""}</TableCell>
+              <TableCell colSpan={2}>Statistics</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

@@ -1,4 +1,6 @@
-import React from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -6,11 +8,22 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import Box from "@mui/material/Box";
 
 // Utils
-// import { formatNumber, shortDateFormat } from "src/utils";
+import { customizeDate } from "src/utils";
 
-const ConversionHistoryTable = ({}) => {
+const ConversionHistoryTable = ({ conversionHistory, handleDeleteHistory }) => {
+  const [isActionButtons, setActionButtons] = useState(false);
+  const [currentRow, setCurrentRow] = useState(0);
+
+  const showActionButtons = (id) => {
+    setCurrentRow(id);
+    setActionButtons(true);
+  };
+  const hideActionButtons = () => {
+    setActionButtons(false);
+  };
   return (
     <div>
       <TableContainer component={Paper}>
@@ -19,24 +32,68 @@ const ConversionHistoryTable = ({}) => {
             <TableRow>
               <TableCell>Date</TableCell>
               <TableCell>Event</TableCell>
-              <TableCell>Action</TableCell>
+              <TableCell colSpan={2}>Actions</TableCell>
             </TableRow>
           </TableHead>
-          {/* <TableBody> */}
-          {/* {exchangeHistory.map((row) => (
+          <TableBody>
+            {conversionHistory.map((history) => (
               <TableRow
-                key={row.timestamp}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                key={history.id}
+                sx={{
+                  "&:last-child td, &:last-child th": { border: 0 },
+                  cursor: "pointer",
+                }}
+                onMouseOver={() => showActionButtons(history.id)}
+                onMouseLeave={hideActionButtons}
               >
                 <TableCell component="th" scope="row">
-                  {shortDateFormat(row.timestamp)}
+                  {customizeDate(history.date)}
                 </TableCell>
-                <TableCell align="right">
-                  {formatNumber(+row.rate, 7)}
+                <TableCell>
+                  Converted an amount of {history.amount} from{" "}
+                  {history.fromCurrency} to {history.toCurrency}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    height: "32px",
+                    width: "70px",
+                  }}
+                >
+                  {isActionButtons && currentRow === history.id && (
+                    <Link to={`/?id=${history.id}`}>
+                      <span className="material-icons view-icon" color="green">
+                        visibility
+                      </span>
+                    </Link>
+                  )}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    height: "32px",
+                    width: "180px",
+                  }}
+                >
+                  {isActionButtons && currentRow === history.id && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                      }}
+                      onClick={() => handleDeleteHistory(history.id)}
+                    >
+                      <Box>
+                        <span className="material-icons delete-icon">
+                          delete_forever
+                        </span>
+                      </Box>
+                      <Box>
+                        <span className="delete-icon">Delete from history</span>
+                      </Box>
+                    </Box>
+                  )}
                 </TableCell>
               </TableRow>
-            ))} */}
-          {/* </TableBody> */}
+            ))}
+          </TableBody>
         </Table>
       </TableContainer>
     </div>
