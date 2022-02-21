@@ -42,7 +42,7 @@ To run the app locally on your computer
 
 ```
 $ npm install
-$ npm run serve
+$ npm start
 ```
 
 ## Folder Structure
