@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 
-import { Formik } from "formik";
+import { Formik, getIn } from "formik";
 import * as Yup from "yup";
 import { useLocation } from "react-router-dom";
 
@@ -19,6 +19,8 @@ import ExchangeHistory from "./ExchangeHistory";
 const CurrencyConverter = () => {
   // Exchange-history state data
   const [exchangeHistory, setExchangeHistory] = useState([]);
+  // Error Msg
+  const [errorMessage, setErrorMessage] = useState("");
   // Currency state data
   const [currencies, setCurrency] = useState([]);
   const [basePrice, setBasePrice] = useState(null);
@@ -93,12 +95,11 @@ const CurrencyConverter = () => {
         if (response.status === 200) {
           setExchangeHistory(response.data.reverse());
         } else {
-          // Error Handling
+          setErrorMessage("An error occurred");
         }
       })
       .catch((error) => {
-        // Error Handling
-        // console.log(error.message, "error...");
+        setErrorMessage("An error occurred");
       });
   };
   const fetchCurrencyList = () => {
@@ -108,11 +109,11 @@ const CurrencyConverter = () => {
           setCurrency(response.data);
         } else {
           // Error Handling
+          setErrorMessage("An error occurred");
         }
       })
       .catch((error) => {
-        // Error Handling
-        // console.log(error.message, "error...");
+        setErrorMessage("An error occurred");
       });
   };
 
@@ -180,7 +181,9 @@ const CurrencyConverter = () => {
                   <Autocomplete
                     sx={{ width: "30%" }}
                     options={currencies}
-                    getOptionLabel={(option) => option.currency}
+                    getOptionLabel={(option) =>
+                      option.currency ? option.currency : ""
+                    }
                     noOptionsText={<small>You have none for now</small>}
                     value={values.fromCurrency}
                     onChange={(event, newValue) => {
@@ -188,10 +191,14 @@ const CurrencyConverter = () => {
                     }}
                     renderInput={(params) => (
                       <TextField
-                        label="from"
-                        helperText={touched.fromCurrency && errors.fromCurrency}
+                        label="From"
+                        helperText={
+                          touched.fromCurrency?.currency &&
+                          errors.fromCurrency?.currency
+                        }
                         error={Boolean(
-                          touched.fromCurrency && errors.fromCurrency
+                          getIn(touched, values.fromCurrency) &&
+                            getIn(errors, values.fromCurrency)
                         )}
                         variant="standard"
                         name="fromCurrency"
@@ -201,25 +208,22 @@ const CurrencyConverter = () => {
                     )}
                   />
 
-                  <Button
+                  <button
                     type="button"
-                    variant="contained"
-                    sx={{
-                      backgroundColor: "#fff",
-                      height: "30px",
-                      padding: "22px",
-                    }}
+                    className="compare-button"
                     onClick={handleSwitchCurrencyBtn}
                   >
                     <span className="material-icons compare_arrows">
                       compare_arrows
                     </span>
-                  </Button>
+                  </button>
 
                   <Autocomplete
                     sx={{ width: "30%" }}
                     options={currencies}
-                    getOptionLabel={(option) => option.currency}
+                    getOptionLabel={(option) =>
+                      option.currency ? option.currency : ""
+                    }
                     noOptionsText={<small>You have none for now</small>}
                     value={values.toCurrency}
                     onChange={(event, newValue) => {
@@ -229,8 +233,14 @@ const CurrencyConverter = () => {
                       <TextField
                         {...params}
                         label="To"
-                        helperText={touched.toCurrency && errors.toCurrency}
-                        error={Boolean(touched.toCurrency && errors.toCurrency)}
+                        helperText={
+                          touched.toCurrency?.currency &&
+                          errors.toCurrency?.currency
+                        }
+                        error={Boolean(
+                          getIn(touched, values.toCurrency) &&
+                            getIn(errors, values.toCurrency)
+                        )}
                         variant="standard"
                         name="toCurrency"
                         id="toCurrency"
@@ -284,6 +294,7 @@ const CurrencyConverter = () => {
         <ExchangeHistory
           exchangeHistory={exchangeHistory}
           handleFetchExchangeHistory={handleFetchExchangeHistory}
+          errorMessage={errorMessage}
         />
       </div>
     </main>

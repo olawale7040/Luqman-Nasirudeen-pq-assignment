@@ -4,7 +4,12 @@ const Header = () => {
     <div>
       <header>
         <nav className="navbar">
-          <div className="brand-name">CurrencyExchange</div>
+          <div className="brand-wrap">
+            <div>
+              <span className="material-icons">find_replace</span>
+            </div>
+            <div className="brand-name">CurrencyExchange</div>
+          </div>
           <div className="navigation">
             <NavLink
               to="/"

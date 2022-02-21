@@ -12,6 +12,7 @@ const ExchangeRateChart = ({ exchangeHistory }) => {
       row.push(shortDateFormat(item.timestamp));
       row.push(formatNumber(+item.rate, 2));
       exchangeRate.push(row);
+      return row;
     });
     setChartData(exchangeRate);
   }, [exchangeHistory]);

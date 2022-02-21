@@ -29,10 +29,33 @@ const ConversionHistoryTable = ({ conversionHistory, handleDeleteHistory }) => {
       <TableContainer component={Paper}>
         <Table size="small" aria-label="a dense table">
           <TableHead>
-            <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell>Event</TableCell>
-              <TableCell colSpan={2}>Actions</TableCell>
+            <TableRow
+              sx={{
+                height: "49px",
+              }}
+            >
+              <TableCell
+                sx={{
+                  color: "#8d8d8d",
+                }}
+              >
+                Date
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: "#8d8d8d",
+                }}
+              >
+                Event
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: "#8d8d8d",
+                }}
+                colSpan={2}
+              >
+                Actions
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

@@ -16,9 +16,25 @@ const ExchangeRateTable = ({ exchangeHistory }) => {
       <TableContainer component={Paper}>
         <Table size="small" aria-label="a dense table">
           <TableHead>
-            <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell align="right">Exchange Rate</TableCell>
+            <TableRow
+              sx={{
+                height: "49px",
+              }}
+            >
+              <TableCell
+                sx={{
+                  color: "#8d8d8d",
+                }}
+              >
+                Date
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: "#8d8d8d",
+                }}
+              >
+                Exchange Rate
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -30,9 +46,7 @@ const ExchangeRateTable = ({ exchangeHistory }) => {
                 <TableCell component="th" scope="row">
                   {shortDateFormat(row.timestamp)}
                 </TableCell>
-                <TableCell align="right">
-                  {formatNumber(+row.rate, 7)}
-                </TableCell>
+                <TableCell>{formatNumber(+row.rate, 7)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

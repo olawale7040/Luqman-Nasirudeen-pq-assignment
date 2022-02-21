@@ -1,5 +1,6 @@
 import axios from "axios";
 
+// This variable is created in the .env file, but won't be push to the repo
 const myKey = "086fa3779199d3ec5a37ab1efd1d847057a8be55";
 const apiKey = process.env.REACT_APP_API_KEY
   ? process.env.REACT_APP_API_KEY

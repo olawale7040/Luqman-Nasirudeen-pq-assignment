@@ -15,7 +15,11 @@ import ExchangeRateTable from "src/components/ExchangeRateTable";
 import StatisticsTable from "src/components/StatisticsTable";
 import ExchangeRateChart from "src/components/ExchangeRateChart";
 
-const ExchangeHistory = ({ exchangeHistory, handleFetchExchangeHistory }) => {
+const ExchangeHistory = ({
+  exchangeHistory,
+  handleFetchExchangeHistory,
+  errorMessage,
+}) => {
   const [duration, setDuration] = useState(historyDuration[0].value);
   const [viewType, setViewType] = useState("table");
 
@@ -76,17 +80,24 @@ const ExchangeHistory = ({ exchangeHistory, handleFetchExchangeHistory }) => {
             value={viewType}
             onChange={(e) => setViewType(e.target.value)}
           >
-            <FormControlLabel
-              value="table"
-              control={<Radio color="primary" />}
-              label="Table"
-              color="primary"
-            />
+            <FormControlLabel value="table" control={<Radio />} label="Table" />
             <FormControlLabel
               value="chart"
-              control={<Radio color="primary" />}
+              control={
+                <Radio
+                  sx={{
+                    "&.Mui-checked": {
+                      color: "success",
+                    },
+                  }}
+                />
+              }
+              sx={{
+                "&.Mui-checked": {
+                  color: "success",
+                },
+              }}
               label="Chart"
-              color="primary"
             />
           </RadioGroup>
         </FormControl>
@@ -112,13 +123,27 @@ const ExchangeHistory = ({ exchangeHistory, handleFetchExchangeHistory }) => {
         </Box>
       )}
 
-      {!exchangeHistory && (
+      {exchangeHistory.length === 0 && !errorMessage && (
         <Box
           sx={{
-            marginTop: "12px",
+            marginTop: "48px",
+            height: "40px",
+            textAlign: "center",
           }}
         >
           No Data Yet...
+        </Box>
+      )}
+      {errorMessage && (
+        <Box
+          sx={{
+            marginTop: "48px",
+            height: "40px",
+            textAlign: "center",
+            color: "red",
+          }}
+        >
+          {errorMessage}
         </Box>
       )}
     </Box>

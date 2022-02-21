@@ -15,8 +15,19 @@ const StatisticsTable = ({ exchangeRateStatistics }) => {
       <TableContainer component={Paper}>
         <Table size="small" aria-label="a dense table">
           <TableHead>
-            <TableRow>
-              <TableCell colSpan={2}>Statistics</TableCell>
+            <TableRow
+              sx={{
+                height: "49px",
+              }}
+            >
+              <TableCell
+                sx={{
+                  color: "#8d8d8d",
+                }}
+                colSpan={2}
+              >
+                Statistics
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -28,9 +39,7 @@ const StatisticsTable = ({ exchangeRateStatistics }) => {
                 <TableCell component="th" scope="row">
                   {item.name}
                 </TableCell>
-                <TableCell align="right">
-                  {formatNumber(item.value, 7)}
-                </TableCell>
+                <TableCell>{formatNumber(item.value, 7)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
