@@ -55,6 +55,8 @@ $ npm run serve
 │   ├── components
 │   ├── constants
 │   ├── pages
+│   ├── slices
+│   ├── store
 │   ├── routes
 │   └── utils
 │
