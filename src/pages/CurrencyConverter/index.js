@@ -1,15 +1,17 @@
 import { useEffect, useState, useCallback } from "react";
-
 import { Formik, getIn } from "formik";
 import * as Yup from "yup";
-import { useLocation } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import Autocomplete from "@mui/material/Autocomplete";
-//
+// Action
+import { updateConversionHistory } from "src/slices/conversionHistory";
+
+//Utils
 import { getCurrencyList, getExchangeHistory } from "src/Api";
 import { formatNumber, subtractDaysFromDate } from "src/utils";
 import { decimalPlace, defaultNoDay } from "src/constant";
@@ -17,6 +19,13 @@ import { decimalPlace, defaultNoDay } from "src/constant";
 import ExchangeHistory from "./ExchangeHistory";
 
 const CurrencyConverter = () => {
+  // Redux State
+  const selectedViewHistory = useSelector(
+    (state) => state.conversionHistory.viewConversion
+  );
+  // dispatch
+  const dispatch = useDispatch();
+
   // Exchange-history state data
   const [exchangeHistory, setExchangeHistory] = useState([]);
   // Error Msg
@@ -25,7 +34,7 @@ const CurrencyConverter = () => {
   const [currencies, setCurrency] = useState([]);
   const [basePrice, setBasePrice] = useState(null);
   const [quotePrice, setQuotePrice] = useState(null);
-  const [convertedAmount, setConvertedAmount] = useState(null);
+  const [convertedAmount, setConvertedAmount] = useState("");
   const [values, setValues] = useState({
     amount: "",
     fromCurrency: { currency: "", rate: "" },
@@ -34,7 +43,7 @@ const CurrencyConverter = () => {
 
   const handleSwitchCurrencyBtn = () => {
     const { fromCurrency, toCurrency } = values;
-    if (fromCurrency && toCurrency) {
+    if (fromCurrency.currency && toCurrency.currency) {
       setValues({
         ...values,
         fromCurrency: toCurrency,
@@ -51,57 +60,65 @@ const CurrencyConverter = () => {
     setConvertedAmount(null);
   };
 
-  const handleConversion = useCallback(() => {
-    const { amount, fromCurrency, toCurrency } = values;
-    console.log(values, "value......7777");
-    const basePrice = fromCurrency.rate;
-    const quotePrice = toCurrency.rate;
-    const oneBasePrice = Number(basePrice) / Number(quotePrice);
-    const oneQuotePrice = Number(quotePrice) / Number(basePrice);
-    let result = Number(amount) * oneBasePrice;
-    setConvertedAmount(result);
-    setBasePrice(oneBasePrice);
-    setQuotePrice(oneQuotePrice);
-    // Get exchange rate history (default 7 days)
-    let startDate = subtractDaysFromDate(defaultNoDay);
-    handleFetchExchangeHistory(startDate);
-    // Save conversion result to localStorage
-    handleSaveConversion();
-  }, [values]);
   // Save conversion history
-  const handleSaveConversion = () => {
+  const handleSaveConversion = useCallback(() => {
     const date = new Date();
     const payload = {
       ...values,
+      amount: Number(values.amount),
       date,
     };
-    payload.id = Math.floor(1000 + Math.random() * 9000);
-    let data = [];
-    if (localStorage.hasOwnProperty("conversionHistory")) {
-      const conversionHistory = JSON.parse(
-        localStorage.getItem("conversionHistory")
-      );
-      conversionHistory.push(payload);
-      data = conversionHistory;
-    } else {
-      data.push(payload);
+    dispatch(updateConversionHistory(payload));
+  }, [dispatch, values]);
+
+  // Fetch Exchange History
+  const handleFetchExchangeHistory = useCallback(
+    (start) => {
+      const currency = values?.fromCurrency.currency;
+      if (start && currency) {
+        getExchangeHistory(currency, start)
+          .then((response) => {
+            if (response.status === 200) {
+              setExchangeHistory(response.data.reverse());
+            } else {
+              setErrorMessage("An error occurred");
+            }
+          })
+          .catch((error) => {
+            setErrorMessage("An error occurred");
+          });
+      }
+    },
+    [values.fromCurrency?.currency]
+  );
+  // Trigger the conversion
+  const handleConversion = useCallback(() => {
+    const { amount, fromCurrency, toCurrency } = values;
+    if (amount) {
+      const basePrice = fromCurrency.rate;
+      const quotePrice = toCurrency.rate;
+      const oneBasePrice = Number(basePrice) / Number(quotePrice);
+      const oneQuotePrice = Number(quotePrice) / Number(basePrice);
+      const result = Number(amount) * oneBasePrice;
+      setConvertedAmount(result);
+      setBasePrice(oneBasePrice);
+      setQuotePrice(oneQuotePrice);
+      // Get exchange rate history (default 7 days)
+      let startDate = subtractDaysFromDate(defaultNoDay);
+      handleFetchExchangeHistory(startDate);
+      // Save conversion result to store
+      handleSaveConversion();
     }
-    localStorage.setItem("conversionHistory", JSON.stringify(data));
-  };
-  const handleFetchExchangeHistory = (start) => {
-    const currency = values?.fromCurrency.currency;
-    getExchangeHistory(currency, start)
-      .then((response) => {
-        if (response.status === 200) {
-          setExchangeHistory(response.data.reverse());
-        } else {
-          setErrorMessage("An error occurred");
-        }
-      })
-      .catch((error) => {
-        setErrorMessage("An error occurred");
-      });
-  };
+  }, [handleFetchExchangeHistory, handleSaveConversion, values]);
+
+  // Perform the conversion of a selected history
+  const calculateViewHistory = useCallback(() => {
+    if (selectedViewHistory) {
+      setValues(selectedViewHistory);
+      handleConversion();
+    }
+  }, [selectedViewHistory, handleConversion]);
+  // Fetch all currencies
   const fetchCurrencyList = () => {
     getCurrencyList()
       .then((response) => {
@@ -117,33 +134,13 @@ const CurrencyConverter = () => {
       });
   };
 
-  // Hooks
-  const queryParams = new URLSearchParams(useLocation().search);
-  // View a conversion history to and perform operation
-  // Get query parameter (id)
-  const historyId = queryParams.get("id");
-
-  const performViewConversionHistory = useCallback(() => {
-    const allHistory = JSON.parse(localStorage.getItem("conversionHistory"));
-    if (allHistory) {
-      const findHistory = allHistory.find(
-        (item) => item.id === Number(historyId)
-      );
-      if (findHistory) {
-        setValues(findHistory);
-        handleConversion();
-      }
-    }
-  }, [historyId, handleConversion, values]);
-
   useEffect(() => {
     fetchCurrencyList();
   }, []);
+
   useEffect(() => {
-    if (historyId) {
-      performViewConversionHistory();
-    }
-  }, [historyId]);
+    calculateViewHistory();
+  }, [values.amount, calculateViewHistory]);
   return (
     <main className="main-container">
       <div className="page-content">
@@ -172,6 +169,7 @@ const CurrencyConverter = () => {
                     label="Amount"
                     variant="standard"
                     name="amount"
+                    value={values.amount}
                     helperText={touched.amount && errors.amount}
                     error={Boolean(touched.amount && errors.amount)}
                     onChange={(event) => {
@@ -181,9 +179,7 @@ const CurrencyConverter = () => {
                   <Autocomplete
                     sx={{ width: "30%" }}
                     options={currencies}
-                    getOptionLabel={(option) =>
-                      option.currency ? option.currency : ""
-                    }
+                    getOptionLabel={(option) => option.currency}
                     noOptionsText={<small>You have none for now</small>}
                     value={values.fromCurrency}
                     onChange={(event, newValue) => {

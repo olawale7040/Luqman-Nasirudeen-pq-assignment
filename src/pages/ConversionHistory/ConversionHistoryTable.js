@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+// Action
+import {
+  setViewConversion,
+  deleteConversionHistory,
+} from "src/slices/conversionHistory";
 
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -13,9 +19,17 @@ import Box from "@mui/material/Box";
 // Utils
 import { customizeDate } from "src/utils";
 
-const ConversionHistoryTable = ({ conversionHistory, handleDeleteHistory }) => {
+const ConversionHistoryTable = () => {
+  // State
   const [isActionButtons, setActionButtons] = useState(false);
   const [currentRow, setCurrentRow] = useState(0);
+  // Redux State
+  const conversionHistory = useSelector(
+    (state) => state.conversionHistory.conversionHistory
+  );
+  const dispatch = useDispatch();
+  // Navigate
+  const navigate = useNavigate();
 
   const showActionButtons = (id) => {
     setCurrentRow(id);
@@ -24,6 +38,23 @@ const ConversionHistoryTable = ({ conversionHistory, handleDeleteHistory }) => {
   const hideActionButtons = () => {
     setActionButtons(false);
   };
+
+  const viewHistory = (id) => {
+    if (conversionHistory) {
+      const findHistory = conversionHistory.find(
+        (item) => item.id === Number(id)
+      );
+      if (findHistory) {
+        dispatch(setViewConversion(findHistory));
+        navigate("/");
+      }
+    }
+  };
+
+  const handleDeleteHistory = (id) => {
+    dispatch(deleteConversionHistory(id));
+  };
+
   return (
     <div>
       <TableContainer component={Paper}>
@@ -84,11 +115,13 @@ const ConversionHistoryTable = ({ conversionHistory, handleDeleteHistory }) => {
                   }}
                 >
                   {isActionButtons && currentRow === history.id && (
-                    <Link to={`/?id=${history.id}`}>
-                      <span className="material-icons view-icon" color="green">
-                        visibility
-                      </span>
-                    </Link>
+                    <span
+                      onClick={() => viewHistory(history.id)}
+                      className="material-icons view-icon"
+                      color="green"
+                    >
+                      visibility
+                    </span>
                   )}
                 </TableCell>
                 <TableCell

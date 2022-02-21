@@ -1,22 +1,12 @@
-import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import ConversionHistoryTable from "./ConversionHistoryTable";
+import { useSelector } from "react-redux";
 
-const ConversionHistory = (props) => {
-  const [conversionHistory, setConversionHistory] = useState([]);
-
-  const handleDeleteHistory = (id) => {
-    const filteredHistory = conversionHistory.filter((item) => item.id !== id);
-    setConversionHistory(filteredHistory);
-    localStorage.setItem("conversionHistory", JSON.stringify(filteredHistory));
-  };
-
-  useEffect(() => {
-    if (localStorage.hasOwnProperty("conversionHistory")) {
-      const allHistory = JSON.parse(localStorage.getItem("conversionHistory"));
-      setConversionHistory(allHistory);
-    }
-  }, []);
+const ConversionHistory = () => {
+  // Redux State
+  const conversionHistory = useSelector(
+    (state) => state.conversionHistory.conversionHistory
+  );
   return (
     <main className="main-container">
       <div className="page-content">
@@ -26,14 +16,11 @@ const ConversionHistory = (props) => {
             marginTop: "24px",
           }}
         >
-          {conversionHistory.length > 0 && (
-            <ConversionHistoryTable
-              conversionHistory={conversionHistory}
-              handleDeleteHistory={handleDeleteHistory}
-            />
+          {conversionHistory && conversionHistory.length > 0 && (
+            <ConversionHistoryTable />
           )}
 
-          {conversionHistory.length === 0 && (
+          {!conversionHistory && (
             <Box
               sx={{
                 marginTop: "32px",

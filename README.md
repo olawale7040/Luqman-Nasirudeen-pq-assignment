@@ -1,6 +1,6 @@
 # Payconiq_project
 
-Currency Converter
+Currency Conversion
 
 ## Tech/Framework And Tools used
 
@@ -13,6 +13,8 @@ Currency Converter
 - [Material UI](https://mui.com)
 
 - [Anychart](https://anychart.com)
+
+- [Redux Toolkit](https://redux-toolkit.js.org/)
 
 ## API
 
