@@ -13,9 +13,11 @@ import { historyDuration } from "src/utils";
 // Components
 import ExchangeRateTable from "src/components/ExchangeRateTable";
 import StatisticsTable from "src/components/StatisticsTable";
+import ExchangeRateChart from "src/components/ExchangeRateChart";
 
 const ExchangeHistory = ({ exchangeHistory, handleFetchExchangeHistory }) => {
   const [duration, setDuration] = useState(historyDuration[0].value);
+  const [viewType, setViewType] = useState("table");
 
   const handleChange = (event) => {
     setDuration(event.target.value);
@@ -70,19 +72,20 @@ const ExchangeHistory = ({ exchangeHistory, handleFetchExchangeHistory }) => {
           <RadioGroup
             row
             aria-labelledby="demo-row-radio-buttons-group-label"
-            name="row-radio-buttons-group"
-            defaultValue="female"
+            defaultValue="Table"
+            value={viewType}
+            onChange={(e) => setViewType(e.target.value)}
           >
             <FormControlLabel
-              value="female"
+              value="table"
               control={<Radio color="primary" />}
-              label="Female"
+              label="Table"
               color="primary"
             />
             <FormControlLabel
-              value="male"
+              value="chart"
               control={<Radio color="primary" />}
-              label="Male"
+              label="Chart"
               color="primary"
             />
           </RadioGroup>
@@ -97,7 +100,11 @@ const ExchangeHistory = ({ exchangeHistory, handleFetchExchangeHistory }) => {
           }}
         >
           <Box sx={{ width: "50%" }}>
-            <ExchangeRateTable exchangeHistory={exchangeHistory} />
+            {viewType === "table" ? (
+              <ExchangeRateTable exchangeHistory={exchangeHistory} />
+            ) : (
+              <ExchangeRateChart exchangeHistory={exchangeHistory} />
+            )}
           </Box>
           <Box sx={{ width: "50%" }}>
             <StatisticsTable exchangeRateStatistics={exchangeRateStatistics} />

@@ -51,7 +51,8 @@ const ConversionHistoryTable = ({ conversionHistory, handleDeleteHistory }) => {
                 </TableCell>
                 <TableCell>
                   Converted an amount of {history.amount} from{" "}
-                  {history.fromCurrency} to {history.toCurrency}
+                  {history.fromCurrency.currency} to{" "}
+                  {history.toCurrency.currency}
                 </TableCell>
                 <TableCell
                   sx={{

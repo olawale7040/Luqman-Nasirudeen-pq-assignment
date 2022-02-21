@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 import { Formik } from "formik";
 import * as Yup from "yup";
@@ -21,28 +21,15 @@ const CurrencyConverter = () => {
   const [exchangeHistory, setExchangeHistory] = useState([]);
   // Currency state data
   const [currencies, setCurrency] = useState([]);
-  const [selectedBaseCurrency, setSelectedBaseCurrency] = useState(null);
-  const [selectedQuoteCurrency, setSelectedQuoteCurrency] = useState(null);
-  const [convertedAmount, setConvertedAmount] = useState(null);
   const [basePrice, setBasePrice] = useState(null);
   const [quotePrice, setQuotePrice] = useState(null);
+  const [convertedAmount, setConvertedAmount] = useState(null);
   const [values, setValues] = useState({
     amount: "",
-    fromCurrency: "",
+    fromCurrency: { currency: "", rate: "" },
     toCurrency: { currency: "", rate: "" },
   });
 
-  // Hooks
-  const queryParams = new URLSearchParams(useLocation().search);
-  // View a conversion history to and perform operation
-  // Get query parameter (id)
-  // const performViewConversionHistory=() => {
-  //   const historyId = queryParams.get("id")
-  //   const allHistory = JSON.parse(localStorage.getItem("conversionHistory"));
-  //   if(historyId && allHistory){
-  //     const findHistory = allHistory.find((item) => item.id === id);
-  //   }
-  // }
   const handleSwitchCurrencyBtn = () => {
     const { fromCurrency, toCurrency } = values;
     if (fromCurrency && toCurrency) {
@@ -51,41 +38,34 @@ const CurrencyConverter = () => {
         fromCurrency: toCurrency,
         toCurrency: fromCurrency,
       });
-      setSelectedBaseCurrency(selectedQuoteCurrency);
-      setSelectedQuoteCurrency(selectedBaseCurrency);
       handleConversion();
     }
   };
   const handleChange = (value, type) => {
-    if (type === "fromCurrency") {
-      setSelectedBaseCurrency(value);
-    } else if (type === "toCurrency") {
-      setSelectedQuoteCurrency(value);
-    }
     setValues({
       ...values,
-      [type]: value.currency ? value.currency : value,
+      [type]: value,
     });
     setConvertedAmount(null);
   };
 
-  const handleConversion = () => {
-    const { amount } = values;
-    const basePrice = selectedBaseCurrency.rate;
-    const quotePrice = selectedQuoteCurrency.rate;
+  const handleConversion = useCallback(() => {
+    const { amount, fromCurrency, toCurrency } = values;
+    console.log(values, "value......7777");
+    const basePrice = fromCurrency.rate;
+    const quotePrice = toCurrency.rate;
     const oneBasePrice = Number(basePrice) / Number(quotePrice);
     const oneQuotePrice = Number(quotePrice) / Number(basePrice);
-    let result = amount * oneBasePrice;
+    let result = Number(amount) * oneBasePrice;
     setConvertedAmount(result);
     setBasePrice(oneBasePrice);
     setQuotePrice(oneQuotePrice);
-
     // Get exchange rate history (default 7 days)
     let startDate = subtractDaysFromDate(defaultNoDay);
     handleFetchExchangeHistory(startDate);
     // Save conversion result to localStorage
     handleSaveConversion();
-  };
+  }, [values]);
   // Save conversion history
   const handleSaveConversion = () => {
     const date = new Date();
@@ -107,12 +87,11 @@ const CurrencyConverter = () => {
     localStorage.setItem("conversionHistory", JSON.stringify(data));
   };
   const handleFetchExchangeHistory = (start) => {
-    const currency = values?.fromCurrency;
+    const currency = values?.fromCurrency.currency;
     getExchangeHistory(currency, start)
       .then((response) => {
         if (response.status === 200) {
           setExchangeHistory(response.data.reverse());
-          console.log(response, "History...");
         } else {
           // Error Handling
         }
@@ -137,9 +116,33 @@ const CurrencyConverter = () => {
       });
   };
 
+  // Hooks
+  const queryParams = new URLSearchParams(useLocation().search);
+  // View a conversion history to and perform operation
+  // Get query parameter (id)
+  const historyId = queryParams.get("id");
+
+  const performViewConversionHistory = useCallback(() => {
+    const allHistory = JSON.parse(localStorage.getItem("conversionHistory"));
+    if (allHistory) {
+      const findHistory = allHistory.find(
+        (item) => item.id === Number(historyId)
+      );
+      if (findHistory) {
+        setValues(findHistory);
+        handleConversion();
+      }
+    }
+  }, [historyId, handleConversion, values]);
+
   useEffect(() => {
     fetchCurrencyList();
   }, []);
+  useEffect(() => {
+    if (historyId) {
+      performViewConversionHistory();
+    }
+  }, [historyId]);
   return (
     <main className="main-container">
       <div className="page-content">
@@ -150,12 +153,15 @@ const CurrencyConverter = () => {
             initialValues={values}
             validationSchema={Yup.object().shape({
               amount: Yup.number().min(1).required("Amount is required"),
-              fromCurrency: Yup.string().required("Required"),
-              toCurrency: Yup.string().required("Required"),
+              fromCurrency: Yup.object().shape({
+                currency: Yup.string().required("required"),
+              }),
+              toCurrency: Yup.object().shape({
+                currency: Yup.string().required("required"),
+              }),
             })}
             onSubmit={async () => {
               handleConversion();
-              // console.log(values, "our values");
             }}
           >
             {({ errors, handleSubmit, isSubmitting, touched }) => (
@@ -173,19 +179,15 @@ const CurrencyConverter = () => {
                   />
                   <Autocomplete
                     sx={{ width: "30%" }}
-                    getOptionLabel={(option) => option.currency}
                     options={currencies}
+                    getOptionLabel={(option) => option.currency}
                     noOptionsText={<small>You have none for now</small>}
-                    onInputChange={(event, newInputValue) => {
-                      handleChange(newInputValue, "fromCurrency");
-                    }}
                     value={values.fromCurrency}
                     onChange={(event, newValue) => {
                       handleChange(newValue, "fromCurrency");
                     }}
                     renderInput={(params) => (
                       <TextField
-                        {...params}
                         label="from"
                         helperText={touched.fromCurrency && errors.fromCurrency}
                         error={Boolean(
@@ -193,8 +195,8 @@ const CurrencyConverter = () => {
                         )}
                         variant="standard"
                         name="fromCurrency"
-                        // defaultValue="ETH"
-                        // value={values.fromCurrency}
+                        id="fromCurrency"
+                        {...params}
                       />
                     )}
                   />
@@ -216,12 +218,10 @@ const CurrencyConverter = () => {
 
                   <Autocomplete
                     sx={{ width: "30%" }}
-                    getOptionLabel={(option) => option.currency}
                     options={currencies}
+                    getOptionLabel={(option) => option.currency}
                     noOptionsText={<small>You have none for now</small>}
-                    onInputChange={(event, newInputValue) => {
-                      handleChange(newInputValue, "toCurrency");
-                    }}
+                    value={values.toCurrency}
                     onChange={(event, newValue) => {
                       handleChange(newValue, "toCurrency");
                     }}
@@ -233,7 +233,7 @@ const CurrencyConverter = () => {
                         error={Boolean(touched.toCurrency && errors.toCurrency)}
                         variant="standard"
                         name="toCurrency"
-                        // value={values.toCurrency}
+                        id="toCurrency"
                       />
                     )}
                   />
@@ -258,22 +258,23 @@ const CurrencyConverter = () => {
             <div>
               <div className="result-wrapper">
                 <div className="from-currency">
-                  {values?.amount} {values?.fromCurrency} =
+                  {values?.amount} {values?.fromCurrency.currency} =
                 </div>
                 <div className="to-currency">
-                  {formatNumber(convertedAmount)} {values?.toCurrency}
+                  {formatNumber(convertedAmount)} {values?.toCurrency.currency}
                 </div>
               </div>
               <div className="result-container">
                 <div className="conversion-rate">
-                  1 {values?.fromCurrency} ={" "}
-                  {formatNumber(basePrice, decimalPlace)} {values?.toCurrency}
+                  1 {values?.fromCurrency.currency} ={" "}
+                  {formatNumber(basePrice, decimalPlace)}{" "}
+                  {values?.toCurrency.currency}
                 </div>
                 <div className="conversion-rate">
                   {" "}
-                  1 {values?.toCurrency} ={" "}
+                  1 {values?.toCurrency.currency} ={" "}
                   {formatNumber(quotePrice, decimalPlace)}{" "}
-                  {values?.fromCurrency}
+                  {values?.fromCurrency.currency}
                 </div>
               </div>
             </div>
